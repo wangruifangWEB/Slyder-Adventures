@@ -1,0 +1,994 @@
+﻿<!DOCTYPE html>
+<html lang="en" style="font-size: 41.4px;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,minimum-scale=1,user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>大转盘抽奖</title>
+<script type="text/javascript" src="js/jquery.min.js"></script> 
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/turntable.js"></script>
+<style>
+body,
+div,
+p,
+ul,
+li,
+table,
+th,
+td,
+a,
+span,
+canvas {
+  margin: 0;
+  padding: 0;
+  background: no-repeat center / contain;
+  cursor: default;
+}
+body {
+  display: block;
+  position: relative;
+  margin: auto;
+  max-width: 10rem;
+  min-width: 4.26666667rem;
+  font-size: 0.16rem;
+  font-family: "Microsoft Yahei", "Arial", sans-serif;
+  background-color: #ff7040;
+}
+#wrap {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  background-image: url("images/bg.jpg");
+  background-size:100% 100%;
+}
+.caidai {
+  position: absolute;
+  width: 100%;
+  height: 13.65333333rem;
+  background-image: url("images/caidai.png");
+}
+.header {
+  padding: 0.49333333rem;
+}
+.rule,
+.my {
+  position: relative;
+  z-index: 1;
+  width: 1.2rem;
+  height: 0.66666667rem;
+  border: 1px solid #d89720;
+  font-size: 0.32rem;
+  line-height: 0.65333333rem;
+  text-align: center;
+  color: #d89720;
+  border-radius: 0.06666667rem;
+}
+.my {
+  width: 1.6rem;
+}
+.block {
+  display: block;
+}
+.none {
+  display: none;
+}
+.r {
+  position: relative;
+}
+.a {
+  position: absolute;
+}
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.clearfix:after {
+  content: "";
+  clear: both;
+  display: block;
+  visibility: hidden;
+  height: 0;
+}
+
+/*规则弹窗*/
+#mask-rule,
+#mask {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+}
+#mask-rule .box-rule {
+  position: relative;
+  margin: 20% auto;
+  padding-top: 0.53333333rem;
+  width: 90%;
+  height: 70%;
+  border-radius: 0.26666667rem;
+  background-color: #fe5c51;
+}
+#mask-rule .box-rule .star {
+  position: absolute;
+  left: 50%;
+  top: -1.33333333rem;
+  margin-left: -1.73333333rem;
+  width: 3.45333333rem;
+  height: 1.16rem;
+  background-image: url("images/star1.png");
+}
+#mask-rule .box-rule h2 {
+  width: 100%;
+  text-align: center;
+  line-height: 0.45333333rem;
+  font-size: 0.45333333rem;
+  font-weight: normal;
+  color: #fff;
+}
+#mask-rule .box-rule h2::before,
+#mask-rule .box-rule h2::after {
+  display: inline-block;
+  content: "";
+  width: 0.24rem;
+  height: 0.24rem;
+  background-color: #fff;
+  border-radius: 50%;
+}
+#mask-rule .box-rule h2::before {
+  margin-right: 0.32rem;
+}
+#mask-rule .box-rule h2::after {
+  margin-left: 0.32rem;
+}
+#mask-rule #close-rule {
+  position: absolute;
+  right: 0.45333333rem;
+  top: 0.50666667rem;
+  width: 0.511433333rem;
+  height: 0.511433333rem;
+  background-image: url("images/close.png");
+}
+/*内容盒子*/
+#mask-rule .con {
+  overflow: auto;
+  position: relative;
+  margin: 0.53333333rem auto;
+  padding-right: 0.2rem;
+  width: 7.73333333rem;
+  height: 82%;
+  line-height: 0.64rem;
+  font-size: 0.34666667rem;
+  color: #fff;
+}
+#mask-rule .con .text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: inherit;
+  height: auto;
+}
+
+/*我的奖品弹窗*/
+#wdjp-rule,
+#mask {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+}
+#wdjp-rule .box-rule {
+  position: relative;
+  margin: 20% auto;
+  padding-top: 0.53333333rem;
+  width: 90%;
+  height: 70%;
+  border-radius: 0.26666667rem;
+  background-color: #fe5c51;
+}
+#wdjp-rule .box-rule .star {
+  position: absolute;
+  left: 50%;
+  top: -1.33333333rem;
+  margin-left: -1.73333333rem;
+  width: 3.45333333rem;
+  height: 1.16rem;
+  background-image: url("images/star2.png");
+}
+#wdjp-rule .box-rule h2 {
+  width: 100%;
+  text-align: center;
+  line-height: 0.45333333rem;
+  font-size: 0.45333333rem;
+  font-weight: normal;
+  color: #fff;
+}
+#wdjp-rule .box-rule h2::before,
+#wdjp-rule .box-rule h2::after {
+  display: inline-block;
+  content: "";
+  width: 0.24rem;
+  height: 0.24rem;
+  background-color: #fff;
+  border-radius: 50%;
+}
+#wdjp-rule .box-rule h2::before {
+  margin-right: 0.32rem;
+}
+#wdjp-rule .box-rule h2::after {
+  margin-left: 0.32rem;
+}
+#wdjp-rule #closes-rule {
+  position: absolute;
+  right: 0.45333333rem;
+  top: 0.50666667rem;
+  width: 0.511433333rem;
+  height: 0.511433333rem;
+  background-image: url("images/close.png");
+}
+/*内容盒子*/
+#wdjp-rule .con {
+  overflow: auto;
+  position: relative;
+  margin: 0.53333333rem auto;
+  padding-right: 0.2rem;
+  width: 7.73333333rem;
+  height: 82%;
+  line-height: 0.64rem;
+  font-size: 0.34666667rem;
+  color: #fff;
+}
+#wdjp-rule .con .text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: inherit;
+  height: auto;
+}
+/*次数*/
+.border {
+  width: 5.06666667rem;
+  height: 0.84rem;
+  margin: -0.5rem auto 0.33333333rem;
+  background-image: url("images/border.png");
+  font-size: 0.32rem;
+  line-height: 0.84rem;
+  text-align: center;
+  color: #fff;
+}
+.scroll {
+  width: 7.33333333rem;
+  height: 1.73333333rem;
+  margin: auto;
+  overflow:hidden;
+}
+.scroll p {
+  width: 4.76rem;
+  height: 0.29333333rem;
+  margin: auto;
+  background-image: url("images/list.png");
+}
+.scroll div {
+  overflow: hidden;	
+  width: 100%;
+  height: 0.46666667rem;
+  margin-top: 0.26666667rem;
+  padding: 0.16666667rem 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 0.13333333rem;
+}
+.scroll ul {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.scroll ul li {
+  position: relative;
+  top: 0;
+  text-align: center;
+  font-size: 0.29333333rem;
+  line-height: 0.53333333rem;
+  color: #fff;
+  -o-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -webkit-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+.copyrigh{ text-align:center; color:#FFF;
+	}
+/*中奖提示*/
+#mask .blin {
+  width: 100%;
+  height: 100%;
+  background-image: url("images/gold.png");
+  -o-animation: circle 10s linear infinite;
+  -ms-animation: circle 10s linear infinite;
+  -moz-animation: circle 10s linear infinite;
+  -webkit-animation: circle 10s linear infinite;
+  animation: circle 10s linear infinite;
+}
+@keyframes circle {
+  0% {
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -o-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+#mask .caidai {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background-image: url("images/dianzhui.png");
+  -o-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
+}
+#mask .winning {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 8rem;
+  height: 6.8rem;
+  margin: -3.46666667rem 0 0 -4rem;
+  -o-transform: scale(0.1);
+  -ms-transform: scale(0.1);
+  -moz-transform: scale(0.1);
+  -webkit-transform: scale(0.1);
+  transform: scale(0.1);
+}
+#mask .reback {
+  -o-animation: reback .5s linear forwards;
+  -ms-animation: reback .5s linear forwards;
+  -moz-animation: reback .5s linear forwards;
+  -webkit-animation: reback .5s linear forwards;
+  animation: reback .5s linear forwards;
+}
+@keyframes reback {
+  100% {
+    -o-transform: scale(1);
+    -ms-transform: scale(1);
+    -moz-transform: scale(1);
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+.winning .red-head {
+  position: relative;
+  top: -0.33333333rem;
+  width: 100%;
+  height: 4.46666667rem;
+  background-image: url("images/top.png");
+}
+.winning .red-body {
+  position: relative;
+  top: -2.13333333rem;
+  z-index: 2;
+  width: 100%;
+  height: 4.8rem;
+  background-image: url("images/bottom.png");
+}
+.winning #card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  margin-left: -3.2rem;
+  margin-top: -1.06666667rem;
+  width: 80%;
+  height: 4.26666667rem;
+  background-image: url("images/middle.png");
+  -o-transition: top .5s;
+  -ms-transition: top .5s;
+  -moz-transition: top .5s;
+  -webkit-transition: top .5s;
+  transition: top .5s;
+}
+#card .win {
+  display: block;
+  margin: 0.13333333rem auto;
+  width: 92%;
+  height: 3.86666667rem;
+  text-align:center;
+}
+#card img {
+	margin-top:0.28rem;
+	width:3.3rem;
+	height:3.3rem;
+	}
+.winning .pull {
+  -o-animation: card .5s linear forwards;
+  -ms-animation: card .5s linear forwards;
+  -moz-animation: card .5s linear forwards;
+  -webkit-animation: card .5s linear forwards;
+  animation: card .5s linear forwards;
+}
+@keyframes card {
+  100% {
+    margin-top: -3.2rem;
+  }
+}
+.winning #message {
+	position: absolute;
+	top: 1.8222rem;
+	left:1.1222rem;
+	text-align:center;
+	width:68.5%;
+	padding:0.1rem;
+	color:#fff;
+	font-size:0.4rem;
+	background-color:#ff8658;
+	border-radius: 25px;
+    border: 1px solid #f96d38;
+	}
+.winning .btn {
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  z-index: 2;
+  width: 4.85333333rem;
+  height: 1.54666667rem;
+  margin-left: -2.42666667rem;
+  background-image: url("images/button.png");
+  -o-animation: btnChange 2s linear infinite;
+  -ms-animation: btnChange 2s linear infinite;
+  -moz-animation: btnChange 2s linear infinite;
+  -webkit-animation: btnChange 2s linear infinite;
+  animation: btnChange 2s linear infinite;
+}
+.winning .btns {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  z-index: 2;
+  width: 4.85333333rem;
+  height: 0.8rem;
+  margin-left: -2.42666667rem;
+  background-image: url("images/lj.png");
+  -o-animation: btnChange 2s linear infinite;
+  -ms-animation: btnChange 2s linear infinite;
+  -moz-animation: btnChange 2s linear infinite;
+  -webkit-animation: btnChange 2s linear infinite;
+  animation: btnChange 2s linear infinite;
+}
+@-webkit-keyframes btnChange {
+  0% {
+    transform: scale(1); }
+  50% {
+    transform: scale(0.8); }
+  100% {
+    transform: scale(1); } }
+
+@keyframes btnChange {
+  0% {
+    transform: scale(1); }
+  50% {
+    transform: scale(0.8); }
+  100% {
+    transform: scale(1); } }
+#close {
+  opacity: 0;
+  position: absolute;
+  right: 0rem;
+  top: -1.06666667rem;
+  z-index: 10;
+  width: 0.85333333rem;
+  height: 0.85333333rem;
+  background-image: url("images/close.png");
+  -o-animation: fadein .5s .5s linear forwards;
+  -ms-animation: fadein .5s .5s linear forwards;
+  -moz-animation: fadein .5s .5s linear forwards;
+  -webkit-animation: fadein .5s .5s linear forwards;
+  animation: fadein .5s .5s linear forwards;
+}
+@keyframes fadein {
+  100% {
+    opacity: 1;
+    -o-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+/*轮盘*/
+canvas {
+  background: no-repeat center / contain;
+  cursor: default;
+  display: block;
+  width: 100%;
+  margin-top:2rem;
+	}
+
+.lottery {
+	position: relative;
+	display: inline-block;
+	text-align:center;
+}
+
+.lottery img {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -1.1rem;
+	margin-top: -0.222rem;
+	cursor: pointer;
+	width:2.2rem;
+}
+.prize {
+      position: absolute;
+      width: 17.8vw;
+      top: 4vw;
+      right: 4vw; }
+#jp_border{
+	background-image: url("images/middle.png");
+	height:3rem;
+	padding: 0.1rem;
+	color: #fff;
+	font-size: 0.4rem;
+	text-align:center;
+	width:80%;
+	margin:auto;
+	margin-bottom:10px;
+	}
+#jp_name{
+	text-align:center;
+	display:block;
+	position: relative;
+	top:0px;
+	color:#f96d38;
+	}
+#jp_img{
+	width: 2.5rem; 
+	height: 2.5rem;
+	position:relative;
+	margin-top:-25px;
+	}	
+#wzjp_img{
+	width: 3rem; 
+	height: 3rem;
+	position:relative;
+	}		
+</style>
+<!--[if lte IE 8]>
+	<style>
+		.lottery img{
+			display: none;
+		}   
+	</style>
+<![endif]-->
+
+</head>
+<body onbeforeunload="checkLeave()">
+<div id="wrap">
+	<!--规则-->
+	<div class="caidai"></div>
+    <div class="header clearfix">
+        <!--<p class="rule fl">规则</p>-->
+        <a href="javascript:;" id="myWin">
+            <p class="my fr">我的奖品</p>
+        </a>
+        <div class="title"></div>
+    </div>
+    
+    <!--轮盘-->
+    <div class="lottery" >
+        <canvas id="myCanvas" width="600" height="600">
+            当前浏览器版本过低，请使用其他浏览器尝试
+        </canvas>
+        <img src="images/start.png" id="start">
+    </div>
+    
+     <!--游戏规则弹窗-->
+ 
+    
+     <!--我的奖品弹窗-->
+    <div id="wdjp-rule">
+        <div class="box-rule">
+            <span class="star"></span>
+            <h2>中奖奖品</h2>
+            <span id="closes-rule"></span>
+            <div class="con">
+                <div class="text">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--中奖弹窗-->
+    <div id="mask">
+        <div class="blin"></div>
+        <div class="caidai"></div>
+        <div class="winning">
+            <div class="red-head"></div>
+            <div class="red-body">
+           		<div id="message"></div> 
+           	</div>
+            <div id="card">
+                <a class="win"><img src="images/prize2.png"></a>
+            </div>
+            <input id="uid" type="hidden" value="">
+            <a id="findurl" href="" target="_self" class="btn"></a>
+            <span id="close"></span>
+        </div>
+    </div>
+    
+    <!--中奖次数提示-->
+    <div class="border">
+        您今日还有 <span id="change"> 7 </span> 次抽奖机会
+    </div>
+   
+    <!--滚动信息-->
+    <div class="scroll">
+        <p></p>
+        <div>
+            <ul>
+                <li>
+                    恭喜<span class="start-num">134</span>****<span class="end-num">0481</span>
+                    获得<span class="info">礼品</span>一份
+                </li>
+                <li>
+                    恭喜<span class="start-num">132</span>****<span class="end-num">3145</span>
+                    获得<span class="info">体验卷</span>一张
+                </li>
+                <li>
+                    恭喜<span class="start-num">150</span>****<span class="end-num">0150</span>
+                    获得<span class="info">礼品</span>一份
+                </li>
+                <li>
+                    恭喜<span class="start-num">159</span>****<span class="end-num">1128</span>
+                    获得<span class="info">体验卷</span>一张
+                </li>
+                <li>
+                    恭喜<span class="start-num">139</span>****<span class="end-num">4582</span>
+                    获得<span class="info">体验卷</span>一张
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+   <!--版权信息-->
+    <div class="copyrigh">
+    版权所有：北京乐创在线科技有限公司 <br/>活动介绍：免费抽奖活动  京ICP备14060190号-1
+    </div>
+</div>
+<script>
+
+	var wheelSurf
+	// 初始化装盘数据 正常情况下应该由后台返回
+	var numId="numx1";
+	var htcontent="htmlx1";
+	var initData = {
+		"success": true,
+		"list": [{
+				"id": 100,
+				"name": "未中奖",
+				"image": "images/3.png",
+				"url":"###",
+				"rank":1,
+				"percent":10
+			},
+			{
+				"id": 101,
+				"name": "体验卷",
+				"image": "images/1.png",
+				"url":'http://www.hqwx.com/'
+,
+				"rank":2,
+				"percent":10
+			},
+			{
+				"id": 102,
+				"name": "未中奖",
+				"image": "images/3.png",
+				"url":"###",
+				"rank":3,
+				"percent":10
+			},
+			{
+				"id": 103,
+				"name": "体验卷",
+				"image": "images/1.png",
+				"url":'http://www.hqwx.com/'
+,
+				"rank":4,
+				"percent":20
+			},
+			{
+				"id": 104,
+				"name": "未中奖",
+				"image": "images/3.png",
+				"url":"###",
+				"rank":5,
+				"percent":10
+			},
+			{
+				"id": 105,
+				"name": "体验卷",
+				"image": "images/1.png",
+				"url":'http://www.hqwx.com/'
+,
+				"rank":6,
+				"percent":20
+			},
+			{
+				"id": 106,
+				"name": "体验卷",
+				"image": "images/1.png",
+				"url":'http://www.hqwx.com/'
+,
+				"rank":7,
+				"percent":20
+			}
+		]
+	}
+
+	// 计算分配获奖概率(前提所有奖品概率相加100%)
+	function getGift(){
+		var percent = Math.random()*100
+		var totalPercent = 0
+		for(var i = 0 ,l = initData.list.length;i<l;i++){
+			totalPercent += initData.list[i].percent
+			if(percent<=totalPercent){
+				return initData.list[i]
+			}
+		}           
+	}
+
+	var list = {}
+	
+	var angel = 360 / initData.list.length
+	// 格式化成插件需要的奖品列表格式
+	for (var i = 0, l = initData.list.length; i < l; i++) {
+		list[initData.list[i].rank] = {
+			id:initData.list[i].id,
+			name: initData.list[i].name,
+			image: initData.list[i].image
+		}
+	}
+	// 查看奖品列表格式
+	
+	// 定义转盘奖品
+	wheelSurf = $('#myCanvas').WheelSurf({
+		list: list, // 奖品 列表，(必填)
+		outerCircle: {
+			color: '#df1e15' // 外圈颜色(可选)
+		},
+		innerCircle: {
+			color: '#f4ad26' // 里圈颜色(可选)
+		},
+		dots: ['#fbf0a9', '#fbb936'], // 装饰点颜色(可选)
+		disk: ['#ffb933', '#ffe8b5', '#ffb933', '#ffd57c', '#ffb933', '#ffe8b5', '#ffd57c'], //中心奖盘的颜色，默认7彩(可选)
+		title: {
+			color: '#5c1e08',
+			font: '19px Arial'
+		} // 奖品标题样式(可选)
+	})
+
+	// 初始化转盘
+	wheelSurf.init()
+	// 抽奖
+	var throttle = true;
+	//var num = localStorage.getItem(numId);
+	var num =200;
+	var clickcount = num;//转次数
+	if(num != null)
+	{
+		var clickcount = num;//转次数
+	}
+	else
+	{
+		var clickcount = 7;//转次数
+	}
+	
+	$("#start").on('click', function () {
+
+		var winData = getGift() // 正常情况下获奖信息应该由后台返回
+		if(clickcount=0){
+			//return false;
+		}
+		clickcount--;
+		$("#change").html(clickcount)
+		throttle = false;
+		
+		
+		
+		
+	var count = 0;
+	// 计算奖品角度
+	for (key in list) 
+	{
+			if (list.hasOwnProperty(key)) 
+			{                    
+				if (winData.id == list[key].id) 
+				{
+					break;
+				}
+				count++;
+			}
+	}
+  
+		// 转盘抽奖，
+		wheelSurf.lottery((count * angel + angel / 2), function () 
+		{
+			$("#uid").val(winData.id);
+			$(".list_nr").attr("value",winData.id);
+			$("#message").html(winData.name);
+			$(".win img").attr("src",winData.image); 
+			$(".btn").attr("href",winData.url); 
+			throttle = true;
+			win();
+		})
+	})
+
+
+var $maskRule = $("#mask-rule"),//规则遮罩层
+    $mask = $("#mask"),//红包遮罩层
+    $winning = $(".winning"),//红包
+    $card = $("#card"),
+    $close = $("#close");
+    link = false;//判断是否在链接跳转中
+
+//点击规则
+$(".rule").click(function () {
+    $maskRule.show();
+});
+$("#close-rule").click(function () {
+    $maskRule.hide();
+});	
+
+var $wdjpRule = $("#wdjp-rule"),//规则遮罩层
+    $mask = $("#mask"),//红包遮罩层
+	link = false;//判断是否在链接跳转中
+//点击规则
+$(".my").click(function () {
+    $wdjpRule.show();
+});
+$("#closes-rule").click(function () {
+    $wdjpRule.hide();
+});		
+
+/*中奖信息提示*/
+function win() {
+    //遮罩层显示
+    $mask.show();
+    $winning.addClass("reback");
+    setTimeout(function () 
+	{
+		var id   = $('#uid').val();
+		var url  = $("#findurl").attr("href");
+		var img  = $(".win img").attr("src");
+		var name = $('#message').text();
+		var num  = $('#change').html();
+		//localStorage.setItem(numId, num);
+		$card.addClass("pull");
+		if(name == '未中奖')
+		{
+			$('#wdjp-rule .text').append('<p id="jp_border"><img id="wzjp_img" src="'+img+'"></p>');
+		}
+		else
+		{
+			$('#wdjp-rule .text').append('<p id="jp_border"><span id="jp_name">'+name+'</span> <img id="jp_img" src="'+img+'"><div style="position: relative;top: -15px;"><div class="winning"><a  id="jp_url" href="'+url+'" target="_self" class="btns"></a></div></div></p>');
+		}
+		var html = $('#wdjp-rule .text').html();
+		//localStorage.setItem(htcontent, html);
+    }, 500);
+
+    //关闭弹出层
+    $("#close,.win,.btn").click(function () {
+    //$close.click(function () {
+        $mask.hide();
+        $winning.removeClass("reback");
+        $card.removeClass("pull");
+    });
+    $(".win,.btn").click(function () {
+        link = true;
+    });
+}
+
+//滚动奖品信息
+$(function() {
+	
+//	var num = localStorage.getItem(numId);
+	if(num != null)
+	{
+		var clickcount = num;//转次数
+		$('#change').html(clickcount);
+	}
+	else
+	{
+		var clickcount = 7;//转次数
+		$('#change').html(clickcount);
+	}
+	
+    //获得当前<ul>
+    var $uList = $(".scroll ul");
+    var timer = null;
+    //触摸清空定时器
+    $uList.hover(function() {
+        clearInterval(timer);
+    },
+    function() { //离开启动定时器
+        timer = setInterval(function() {
+            scrollList($uList);
+        },
+        1000);
+    }).trigger("mouseleave"); //自动触发触摸事件
+    //滚动动画
+    function scrollList(obj) {
+        //获得当前<li>的高度
+        var scrollHeight = $("ul li:first").height();
+        //滚动出一个<li>的高度
+        $uList.stop().animate({
+            marginTop: -scrollHeight
+        },
+        600,
+        function() {
+            //动画结束后，将当前<ul>marginTop置为初始值0状态，再将第一个<li>拼接到末尾。
+            $uList.css({
+                marginTop: 0
+            }).find("li:first").appendTo($uList);
+        });
+    }
+});
+
+//我的奖品
+$(".my , .fr").click(function () 
+{
+	//奖品列表显示
+	var new_html = localStorage.getItem(htcontent);
+	$('#wdjp-rule .text').html(new_html); 
+});
+var u = navigator.userAgent;
+var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+if(isiOS === true)
+{
+	  window.addEventListener('pageshow', function(event)
+	   {
+            var new_html = localStorage.getItem(htcontent);
+			$('#wdjp-rule .text').append(new_html);
+			//console.log(new_html);
+       });
+}
+else
+{c
+	function checkLeave()
+	{
+		var new_html   = localStorage.getItem(htcontent);
+		$('#wdjp-rule .text').append(new_html);
+		//console.log(new_html);
+	　　//event.returnValue="确定离开当前页面吗？";
+	}
+}
+	
+</script>
+
+
+</body>
+</html>
